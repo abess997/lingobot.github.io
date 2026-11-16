@@ -1,0 +1,11 @@
+{
+ "name": "عباس الناصر — فكرة صفقة العقار (9:16)",
+ "fps": 60, "width": 1080, "height": 1920, "bpm": 120, "beatsPerBar": 4,
+ "duration": 30.0,
+ "palette": { "bg": "#FBFBFA", "ink": "#131517", "acc": "#4870D0", "clay": "#C95F3C", "hi": "#E8EEFA",
+   "mut": "#8A8C90", "card": "#FFFFFF", "ok": "#2E9E5B", "err": "#D9443A", "onAcc": "#FFFFFF" },
+ "fonts": { "display": "IBM Plex Sans Arabic", "body": "IBM Plex Sans Arabic", "num": "Inter" },
+ "post": { "grain": 0, "vignette": 0 },
+ "stage": "scenes/stage.js",
+ "scenes": []
+}
