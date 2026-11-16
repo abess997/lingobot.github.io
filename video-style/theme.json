@@ -1,0 +1,16 @@
+{
+ "bg": "#FBFBFA",
+ "ink": "#131517",
+ "acc": "#4870D0",
+ "clay": "#C95F3C",
+ "mut": "#7D7E7F",
+ "onAcc": "#FFFFFF",
+ "ok": "#2E9E5B",
+ "err": "#D9443A",
+ "font": "IBM Plex Sans Arabic",
+ "grade": false,
+ "faceAnchor": 0.3,
+ "badgeUntil": 0,
+ "capStyle": "word",
+ "mode": "light"
+}
