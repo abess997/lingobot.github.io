@@ -1,0 +1,268 @@
+[
+ {
+  "type": "pop",
+  "at": 0.05,
+  "gain": 0.5
+ },
+ {
+  "type": "slide",
+  "at": 0.25,
+  "gain": 0.4
+ },
+ {
+  "type": "impact",
+  "at": "word:l2:1-0.05",
+  "gain": 0.55
+ },
+ {
+  "type": "shimmer",
+  "at": "word:l2:-1",
+  "gain": 0.5
+ },
+ {
+  "type": "pop",
+  "at": "word:l2:-1-0.2",
+  "gain": 0.45
+ },
+ {
+  "type": "swoosh-pass",
+  "at": "scene:s2",
+  "gain": 0.45
+ },
+ {
+  "type": "swoosh-pass",
+  "at": "scene:s3",
+  "gain": 0.45
+ },
+ {
+  "type": "swoosh-pass",
+  "at": "scene:s5",
+  "gain": 0.45
+ },
+ {
+  "type": "swoosh-pass",
+  "at": "scene:s6",
+  "gain": 0.45
+ },
+ {
+  "type": "swoosh-pass",
+  "at": "scene:s7",
+  "gain": 0.45
+ },
+ {
+  "type": "swoosh-pass",
+  "at": "scene:s8",
+  "gain": 0.45
+ },
+ {
+  "type": "swoosh-pass",
+  "at": "scene:s10",
+  "gain": 0.45
+ },
+ {
+  "type": "swoosh-pass",
+  "at": "scene:s11",
+  "gain": 0.45
+ },
+ {
+  "type": "swoosh-pass",
+  "at": "scene:s12",
+  "gain": 0.45
+ },
+ {
+  "type": "swoosh-pass",
+  "at": "scene:s13",
+  "gain": 0.45
+ },
+ {
+  "type": "pop",
+  "at": "scene:s2+0.1",
+  "gain": 0.35
+ },
+ {
+  "type": "impact",
+  "at": "word:l3:3",
+  "gain": 0.65
+ },
+ {
+  "type": "tick",
+  "at": 6.64,
+  "gain": 0.5
+ },
+ {
+  "type": "tick",
+  "at": 6.855,
+  "gain": 0.5
+ },
+ {
+  "type": "tick",
+  "at": 7.07,
+  "gain": 0.5
+ },
+ {
+  "type": "tick",
+  "at": 7.285,
+  "gain": 0.5
+ },
+ {
+  "type": "tick",
+  "at": 7.5,
+  "gain": 0.5
+ },
+ {
+  "type": "tick",
+  "at": 7.715,
+  "gain": 0.5
+ },
+ {
+  "type": "pop",
+  "at": "word:l3:6+0.2",
+  "gain": 0.4
+ },
+ {
+  "type": "whoosh",
+  "at": "word:l4:4",
+  "gain": 0.5
+ },
+ {
+  "type": "pop",
+  "at": "word:l4:4+0.25",
+  "gain": 0.35
+ },
+ {
+  "type": "riser",
+  "at": "scene:s4",
+  "gain": 0.45
+ },
+ {
+  "type": "boom",
+  "at": "scene:s4+0.02",
+  "gain": 0.55
+ },
+ {
+  "type": "slide",
+  "at": "word:l5:1-0.1",
+  "gain": 0.45
+ },
+ {
+  "type": "pop",
+  "at": "scene:s5+0.25",
+  "gain": 0.35
+ },
+ {
+  "type": "shimmer",
+  "at": "word:l6:-1",
+  "gain": 0.55
+ },
+ {
+  "type": "typing",
+  "at": "word:l7:0",
+  "dur": 1.7,
+  "gain": 0.3
+ },
+ {
+  "type": "pop",
+  "at": "word:l7:0+0.2",
+  "gain": 0.3
+ },
+ {
+  "type": "pop",
+  "at": "word:l7:1-0.05",
+  "gain": 0.3
+ },
+ {
+  "type": "pop",
+  "at": "word:l7:2-0.05",
+  "gain": 0.3
+ },
+ {
+  "type": "pop",
+  "at": "word:l7:3-0.05",
+  "gain": 0.3
+ },
+ {
+  "type": "tick",
+  "at": "scene:s7+0.3",
+  "gain": 0.5
+ },
+ {
+  "type": "tick",
+  "at": "scene:s7+0.48",
+  "gain": 0.5
+ },
+ {
+  "type": "pop",
+  "at": "word:l8:-1-0.15",
+  "gain": 0.4
+ },
+ {
+  "type": "tick",
+  "at": "word:l9:1+0.05",
+  "gain": 0.6
+ },
+ {
+  "type": "tick",
+  "at": "word:l9:1+0.45",
+  "gain": 0.6
+ },
+ {
+  "type": "tick",
+  "at": "word:l9:1+0.8500000000000001",
+  "gain": 0.6
+ },
+ {
+  "type": "riser",
+  "at": "scene:s9",
+  "gain": 0.4
+ },
+ {
+  "type": "boom",
+  "at": "scene:s9+0.02",
+  "gain": 0.5
+ },
+ {
+  "type": "whoosh",
+  "at": 22.85,
+  "gain": 0.5
+ },
+ {
+  "type": "pop",
+  "at": 23.42,
+  "gain": 0.35
+ },
+ {
+  "type": "slide",
+  "at": "scene:s11+0.15",
+  "gain": 0.4
+ },
+ {
+  "type": "pop",
+  "at": "scene:s11+1.0",
+  "gain": 0.35
+ },
+ {
+  "type": "whoosh",
+  "at": "word:l13:3",
+  "gain": 0.45
+ },
+ {
+  "type": "shimmer",
+  "at": "word:l13:4",
+  "gain": 0.55
+ },
+ {
+  "type": "pop",
+  "at": "scene:s13+0.1",
+  "gain": 0.45
+ },
+ {
+  "type": "tick",
+  "at": "word:l14:1",
+  "gain": 0.8
+ },
+ {
+  "type": "shimmer",
+  "at": "word:l14:1+0.08",
+  "gain": 0.45
+ }
+]

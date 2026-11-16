@@ -1,11 +1,42 @@
 {
  "name": "عباس الناصر — فكرة صفقة العقار (9:16)",
- "fps": 60, "width": 1080, "height": 1920, "bpm": 120, "beatsPerBar": 4,
+ "fps": 60,
+ "width": 1080,
+ "height": 1920,
+ "bpm": 120,
+ "beatsPerBar": 4,
  "duration": 30.0,
- "palette": { "bg": "#FBFBFA", "ink": "#131517", "acc": "#4870D0", "clay": "#C95F3C", "hi": "#E8EEFA",
-   "mut": "#8A8C90", "card": "#FFFFFF", "ok": "#2E9E5B", "err": "#D9443A", "onAcc": "#FFFFFF" },
- "fonts": { "display": "IBM Plex Sans Arabic", "body": "IBM Plex Sans Arabic", "num": "Inter" },
- "post": { "grain": 0, "vignette": 0 },
+ "palette": {
+  "bg": "#FBFBFA",
+  "ink": "#131517",
+  "acc": "#4870D0",
+  "clay": "#C95F3C",
+  "hi": "#E8EEFA",
+  "mut": "#8A8C90",
+  "card": "#FFFFFF",
+  "ok": "#2E9E5B",
+  "err": "#D9443A",
+  "onAcc": "#FFFFFF"
+ },
+ "fonts": {
+  "display": "IBM Plex Sans Arabic",
+  "body": "IBM Plex Sans Arabic",
+  "num": "Inter"
+ },
+ "post": {
+  "grain": 0,
+  "vignette": 0
+ },
  "stage": "scenes/stage.js",
- "scenes": []
+ "scenes": [],
+ "images": {
+  "c2a": "assets/c2a.jpg",
+  "c2b": "assets/c2b.jpg",
+  "c8a": "assets/c8a.jpg",
+  "c8b": "assets/c8b.jpg",
+  "c10a": "assets/c10a.jpg",
+  "c10b": "assets/c10b.jpg",
+  "c12a": "assets/c12a.jpg",
+  "c12b": "assets/c12b.jpg"
+ }
 }
