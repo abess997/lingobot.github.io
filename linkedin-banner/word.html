@@ -1,0 +1,71 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Cormorant+Garamond:ital,wght@0,500;1,500&family=Inter:wght@300;500&display=block" rel="stylesheet">
+<style>
+html,body{margin:0;padding:0;background:#05070c}
+#b::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent 52%,rgba(5,7,12,.75) 72%,rgba(5,7,12,.9));pointer-events:none}
+.txt{z-index:2}
+#b{position:relative;width:1584px;height:396px;overflow:hidden;
+ background:radial-gradient(120% 140% at 70% 120%,#14213a 0%,#0a101d 45%,#05070c 100%)}
+svg{position:absolute;inset:0}
+.txt{position:absolute;right:96px;top:50%;transform:translateY(-54%);text-align:right;color:#f4efe4}
+.k{font:500 13px/1 Inter;letter-spacing:.42em;color:#c9a96a;text-transform:uppercase;margin-bottom:22px}
+.h{font:500 50px/1.08 'Cormorant Garamond',serif;letter-spacing:.005em}
+.h i{color:#e3c88f}
+.s{margin-top:22px;font:300 15px/1 Inter;letter-spacing:.28em;color:#9aa4b8;text-transform:uppercase}
+.s b{font-weight:300;color:#c9a96a;padding:0 12px}
+.w{position:absolute;right:80px;top:50%;transform:translateY(-50%);text-align:right;z-index:2}
+.big{font:600 150px/1 'Cinzel',serif;letter-spacing:.08em;margin-right:-.08em;
+ background:linear-gradient(180deg,#fff4d6 0%,#e9cf95 38%,#b98d48 72%,#f3dcaa 100%);-webkit-background-clip:text;background-clip:text;color:transparent;
+ filter:drop-shadow(0 0 28px rgba(227,200,143,.35)) drop-shadow(0 4px 2px rgba(0,0,0,.6))}
+.rule{height:2px;margin-top:18px;margin-left:auto;width:100%;background:linear-gradient(90deg,transparent,#e3c88f 40%,#fff1cc 80%,transparent)}
+</style></head><body><div id="b">
+<svg viewBox="0 0 1584 396" width="1584" height="396">
+ <defs>
+  <linearGradient id="rim" x1="0" x2="1"><stop offset="0" stop-color="#c9a96a" stop-opacity="0"/><stop offset=".55" stop-color="#e3c88f" stop-opacity=".9"/><stop offset="1" stop-color="#c9a96a" stop-opacity="0"/></linearGradient>
+  <linearGradient id="arc" x1="0" x2="1"><stop offset="0" stop-color="#e3c88f" stop-opacity="0"/><stop offset=".5" stop-color="#f3dcaa"/><stop offset="1" stop-color="#e3c88f" stop-opacity="0"/></linearGradient>
+  <radialGradient id="glow"><stop offset="0" stop-color="#f6e2b4"/><stop offset=".35" stop-color="#e3c88f" stop-opacity=".55"/><stop offset="1" stop-color="#e3c88f" stop-opacity="0"/></radialGradient>
+  <radialGradient id="planet" cx=".5" cy="0" r=".9"><stop offset="0" stop-color="#1b2a47"/><stop offset=".25" stop-color="#0c1424"/><stop offset="1" stop-color="#05070c"/></radialGradient>
+  <clipPath id="pc"><circle cx="600" cy="1560" r="1300"/></clipPath>
+  <pattern id="dots" width="9" height="9" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r=".8" fill="#8ea3c8" fill-opacity=".22"/></pattern>
+  <linearGradient id="fade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset=".55" stop-color="#fff" stop-opacity="0"/></linearGradient>
+  <mask id="dm"><rect width="1584" height="396" fill="url(#fade)"/></mask>
+ </defs>
+ <!-- stars -->
+ <g fill="#cfd8ea" id="stars"></g>
+ <!-- planet -->
+ <circle cx="600" cy="1560" r="1300" fill="url(#planet)"/>
+ <g clip-path="url(#pc)" mask="url(#dm)"><rect x="0" y="250" width="1584" height="160" fill="url(#dots)"/></g>
+ <g clip-path="url(#pc)" fill="none" stroke="#8ea3c8" stroke-opacity=".09">
+  <ellipse cx="600" cy="1560" rx="1300" ry="1240"/><ellipse cx="600" cy="1560" rx="1300" ry="1180"/>
+  <ellipse cx="600" cy="1560" rx="900" ry="1300"/><ellipse cx="600" cy="1560" rx="450" ry="1300"/><ellipse cx="600" cy="1560" rx="80" ry="1300"/>
+ </g>
+ <circle cx="600" cy="1560" r="1300" fill="none" stroke="url(#rim)" stroke-width="1.6"/>
+ <circle cx="600" cy="1560" r="1306" fill="none" stroke="url(#rim)" stroke-width="10" stroke-opacity=".12"/>
+ <!-- connection arcs -->
+ <g fill="none" stroke="url(#arc)" stroke-linecap="round">
+  <path d="M380 278.8 Q490.0 90.0 600 260.0" stroke-width="1.4"/>
+  <path d="M600 260.0 Q790.0 110.0 980 316.8" stroke-width="1.4"/>
+  <path d="M180 329.7 Q500.0 48.80000000000001 820 278.8" stroke-width="1" stroke-opacity=".7"/>
+  <path d="M60 377.5 Q220.0 168.8 380 278.8" stroke-width="1" stroke-opacity=".6"/>
+  <path d="M380 278.8 Q680.0 18.80000000000001 980 316.8" stroke-width=".8" stroke-opacity=".45"/>
+ </g>
+ <!-- the line -->
+ <line x1="0" y1="260.0" x2="1584" y2="260.0" stroke="url(#rim)" stroke-width=".7" stroke-opacity=".35"/>
+ <!-- nodes -->
+ <g id="nodes"></g>
+</svg>
+<div class="w"><div class="big">WORD</div><div class="rule"></div></div>
+</div>
+<script>
+const NS='http://www.w3.org/2000/svg';
+let seed=7;const r=()=>(seed=(seed*16807)%2147483647)/2147483647;
+const st=document.getElementById('stars');
+for(let i=0;i<140;i++){const c=document.createElementNS(NS,'circle');c.setAttribute('cx',r()*1584);c.setAttribute('cy',r()*230);c.setAttribute('r',r()*.9+.2);c.setAttribute('opacity',(r()*.5+.1).toFixed(2));st.appendChild(c);}
+const nd=document.getElementById('nodes');
+[[180,329.7,0.8],[380,278.8,1],[600,260.0,1.6],[820,278.8,0.9],[980,316.8,1],[60,377.5,0.6]].forEach(([x,y,s])=>{
+ const g=document.createElementNS(NS,'circle');g.setAttribute('cx',x);g.setAttribute('cy',y);g.setAttribute('r',22*s);g.setAttribute('fill','url(#glow)');g.setAttribute('opacity','.7');nd.appendChild(g);
+ const c=document.createElementNS(NS,'circle');c.setAttribute('cx',x);c.setAttribute('cy',y);c.setAttribute('r',2.4*s);c.setAttribute('fill','#fff6e0');nd.appendChild(c);});
+</script>
+<script>document.fonts.ready.then(()=>{const b=document.querySelector('.big');let s=150;while(b.scrollWidth>640&&s>60){s-=2;b.style.fontSize=s+'px';}});</script>
+</body></html>
