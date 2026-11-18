@@ -1,3 +1,4 @@
 [submodule "video-studio/OpenMontage"]
 	path = video-studio/OpenMontage
 	url = https://github.com/OpenMontageInc/OpenMontage.git
+	ignore = dirty
