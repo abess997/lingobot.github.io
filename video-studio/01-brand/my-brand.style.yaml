@@ -1,0 +1,64 @@
+# OpenMontage custom style — linked into OpenMontage/styles/custom/my-brand.yaml by setup.sh.
+# Format mirrors OpenMontage/styles/custom/sky-spectrum.yaml. Replace placeholder values
+# with the ones in brand-kit.md. Ask Claude: "use the my-brand style".
+identity:
+  name: my-brand
+  category: minimalist
+  best_for: Short-form social videos and explainers for my brand
+  mood: modern, confident, clear
+  pace: moderate
+visual_language:
+  color_palette:
+    primary: ['#2563EB', '#1D4ED8']
+    accent: ['#F59E0B']
+    background: '#0F172A'
+    muted: '#64748B'
+    text: '#F8FAFC'
+  composition: centered subject, generous safe margins for 9:16 captions
+  texture: flat colour blocks, subtle gradients only on backgrounds
+typography:
+  headings: {font: IBM Plex Sans Arabic, weight: 700, tracking: -0.01em}
+  body: {font: Tajawal, weight: 400, line_height: 1.6}
+  code: {font: Fira Code, weight: 400}
+  stat_card: {font: IBM Plex Sans Arabic, weight: 800, size_multiplier: 4.0}
+  scale_system: perfect_fourth
+  weight_matrix: {title: 800, heading: 700, body: 400, caption: 500}
+chart_palette: ['#2563EB', '#F59E0B', '#10B981', '#EC4899', '#06B6D4', '#EF4444']
+color_rules:
+  colorblind_safe: true
+  contrast_validation: true
+  harmony_type: complementary
+motion:
+  animation_style: spring(1, 90, 12), snappy
+  entrance: fade-up
+  exit: fade-out
+  transitions: [cut, wipe-left, zoom-in]
+  pacing_rules:
+    min_scene_hold_seconds: 1.5
+    max_scene_hold_seconds: 6
+    text_card_hold_seconds: 2.5
+    stat_card_hold_seconds: 2.0
+    transition_duration_seconds: 0.3
+overlays:
+  stat_card: {bg: '#1E293B', border: '#2563EB', radius: 12}
+  key_term: {bg: '#1E3A8A', text: '#BFDBFE', radius: 6}
+  code_block: {bg: '#0F172A', text: '#E2E8F0', highlight: '#F59E0B'}
+audio:
+  voice_style: warm, clear, confident; Gulf Arabic or MSA as specified per project
+  music_mood: modern, upbeat, light percussion
+  music_volume: 0.12
+  ducking_threshold_db: -4
+  sfx_style: subtle whooshes and pops on key transitions
+asset_generation:
+  image_prompt_prefix: 'clean modern illustration, brand blue and amber palette, dark navy background, '
+  image_negative_prompt: watermark, blurry, distorted text, muted colors
+  consistency_anchors:
+    - Brand blue (#2563EB) as primary accent
+    - Dark navy (#0F172A) backgrounds
+    - Amber (#F59E0B) only for emphasis
+quality_rules:
+  - Minimum contrast ratio 4.5:1 for all text
+  - Arabic text right-aligned, never letter-spaced, never broken across lines mid-word
+  - Captions inside 9:16 safe area (avoid bottom 20% and right-side UI on TikTok/Reels)
+  - Logo visible in first 3 seconds and in the outro
+  - New visual element every 2-3 seconds
