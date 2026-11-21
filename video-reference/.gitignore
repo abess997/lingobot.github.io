@@ -1,0 +1,12 @@
+# الفيديوهات الخام والمخرجات ثقيلة — لا ترفعها لـ GitHub
+inbox/*
+!inbox/.gitkeep
+outputs/*
+!outputs/.gitkeep
+*.mp4
+*.mov
+*.m4a
+*.wav
+*.mkv
+*.webm
+references/*/frames/
