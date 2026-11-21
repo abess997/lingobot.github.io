@@ -1,0 +1,7 @@
+# أدوات video-reference — الإصدارات مثبّتة عمداً (فُحصت 2026-11-21)
+# ffmpeg/ffprobe تُثبَّت من النظام (brew install ffmpeg)
+Pillow==12.3.0
+# اختياري: للتنزيل من رابط (--url)
+yt-dlp==2026.10.26
+# اختياري: للتفريغ النصي (--transcribe) — يسحب torch (~5 جيجا) + النموذج أول مرة
+openai-whisper==20250625

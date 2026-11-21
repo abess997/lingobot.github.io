@@ -3,10 +3,14 @@
 
 الاستخدام:
     python3 tools/analyze.py inbox/reel.mp4 --slug my-ref [--threshold 0.3]
+    python3 tools/analyze.py --url "https://www.instagram.com/reel/..." --slug my-ref
+    python3 tools/analyze.py inbox/reel.mp4 --slug my-ref --transcribe [--language ar]
 
 يكتب في references/<slug>/:
     analysis.json, breakdown.md (إن لم يوجد), contact_shots.jpg, contact_timeline.jpg
-يحتاج: ffmpeg, ffprobe, Pillow
+    ومع --transcribe: words.json (جاهز لـ captions.py --words) + transcript.srt + transcript.txt
+مع --url: ينزّل المقطع إلى inbox/<slug>.mp4 أولاً (يحتاج yt-dlp).
+يحتاج: ffmpeg, ffprobe, Pillow — واختيارياً yt-dlp و openai-whisper (انظر requirements.txt)
 """
 import argparse
 import datetime as dt
@@ -87,6 +91,64 @@ def loudness(path):
     return out
 
 
+def download(url, slug):
+    """تنزيل مقطع من رابط إلى inbox/<slug>.mp4 عبر yt-dlp. يرجع (المسار، معلومات المقطع)."""
+    if not shutil.which("yt-dlp"):
+        sys.exit("yt-dlp غير مثبت: pip install -r requirements.txt")
+    inbox = ROOT / "inbox"
+    inbox.mkdir(exist_ok=True)
+    for old in inbox.glob(f"{slug}.*"):
+        old.unlink()
+    print(f"→ تنزيل {url} ...")
+    r = run(["yt-dlp", "--no-playlist", "--write-info-json",
+             "-f", "bv*+ba/b", "--merge-output-format", "mp4",
+             "-o", str(inbox / f"{slug}.%(ext)s"), "--", url])
+    if r.returncode != 0:
+        sys.exit(f"yt-dlp فشل: {r.stderr.strip()[-500:]}")
+    vids = [f for f in inbox.glob(f"{slug}.*") if f.suffix in (".mp4", ".mkv", ".webm", ".mov")]
+    if not vids:
+        sys.exit("لم يُعثر على الفيديو بعد التنزيل")
+    info = {}
+    info_file = inbox / f"{slug}.info.json"
+    if info_file.exists():
+        raw = json.loads(info_file.read_text(encoding="utf-8"))
+        info = {k: raw.get(k) for k in ("title", "uploader", "webpage_url", "upload_date",
+                                         "view_count", "like_count", "description")}
+        info_file.unlink()
+    return vids[0], info
+
+
+def srt_time(t):
+    ms = int(round(t * 1000))
+    h, ms = divmod(ms, 3600000)
+    m, ms = divmod(ms, 60000)
+    s, ms = divmod(ms, 1000)
+    return f"{h:02}:{m:02}:{s:02},{ms:03}"
+
+
+def transcribe(path, out, model_name, language):
+    """تفريغ نصي بـ Whisper مع توقيت كل كلمة → words.json + transcript.srt + transcript.txt"""
+    try:
+        import whisper
+    except ImportError:
+        sys.exit("Whisper غير مثبت: pip install -r requirements.txt")
+    print(f"→ تفريغ نصي بـ Whisper ({model_name}) ... (أول مرة ينزّل النموذج)")
+    model = whisper.load_model(model_name)
+    res = model.transcribe(str(path), language=language or None,
+                           word_timestamps=True, fp16=False)
+    words, srt = [], []
+    for i, seg in enumerate(res.get("segments", []), 1):
+        for w in seg.get("words", []):
+            text = w["word"].strip()
+            if text:
+                words.append({"text": text, "start": round(w["start"], 2), "end": round(w["end"], 2)})
+        srt += [str(i), f"{srt_time(seg['start'])} --> {srt_time(seg['end'])}", seg["text"].strip(), ""]
+    (out / "words.json").write_text(json.dumps(words, ensure_ascii=False, indent=1), encoding="utf-8")
+    (out / "transcript.srt").write_text("\n".join(srt), encoding="utf-8")
+    (out / "transcript.txt").write_text(res.get("text", "").strip() + "\n", encoding="utf-8")
+    return {"model": model_name, "language": res.get("language"), "word_count": len(words)}
+
+
 def pacing_label(avg):
     if avg < 1.0:
         return "سريع جداً (أقل من ثانية للقطة)"
@@ -130,20 +192,35 @@ def contact_sheet(path, times, dest, cols=6):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("video")
-    ap.add_argument("--slug", help="اسم مجلد المرجع (افتراضي: اسم الملف)")
+    ap.add_argument("video", nargs="?", help="مسار المقطع (أو استخدم --url)")
+    ap.add_argument("--url", help="رابط ريلز/تيك توك/يوتيوب: ينزّله إلى inbox/ ثم يحلله")
+    ap.add_argument("--slug", help="اسم مجلد المرجع (افتراضي: اسم الملف؛ مطلوب مع --url)")
     ap.add_argument("--threshold", type=float, default=0.3, help="حساسية كشف القطع 0–1 (أقل = أحسّ)")
     ap.add_argument("--source", default="", help="رابط أو وصف المصدر")
     ap.add_argument("--max-shots", type=int, default=36)
+    ap.add_argument("--transcribe", action="store_true", help="تفريغ نصي بـ Whisper مع توقيت كل كلمة")
+    ap.add_argument("--whisper-model", default="small",
+                    choices=["tiny", "base", "small", "medium", "large", "turbo"],
+                    help="نموذج Whisper (افتراضي small؛ turbo/large أدق للعربي وأبطأ وأكبر)")
+    ap.add_argument("--language", default="", help="لغة الكلام مثل ar أو en (فارغ = كشف تلقائي)")
     args = ap.parse_args()
 
+    if bool(args.video) == bool(args.url):
+        ap.error("أعطِ مسار مقطع أو --url (واحد منهما فقط)")
+    if args.url and not args.slug:
+        ap.error("--slug مطلوب مع --url")
     for tool in ("ffmpeg", "ffprobe"):
         if not shutil.which(tool):
             sys.exit(f"{tool} غير مثبت")
-    src = Path(args.video)
+    slug = re.sub(r"[^\w\-]+", "-", args.slug or Path(args.video).stem).strip("-").lower() or "ref"
+    info = {}
+    if args.url:
+        src, info = download(args.url, slug)
+        args.source = args.source or args.url
+    else:
+        src = Path(args.video)
     if not src.exists():
         sys.exit(f"الملف غير موجود: {src}")
-    slug = re.sub(r"[^\w\-]+", "-", args.slug or src.stem).strip("-").lower() or "ref"
     out = ROOT / "references" / slug
     out.mkdir(parents=True, exist_ok=True)
 
@@ -168,6 +245,12 @@ def main():
         "label": pacing_label(avg),
     }
     audio = loudness(src) if meta["has_audio"] else {}
+    transcript = None
+    if args.transcribe:
+        if meta["has_audio"]:
+            transcript = transcribe(src, out, args.whisper_model, args.language)
+        else:
+            print("⚠ لا يوجد صوت — تخطّي التفريغ النصي")
 
     # لوحة اللقطات: منتصف كل لقطة (بحد أقصى max-shots)
     picked = shots if len(shots) <= args.max_shots else \
@@ -184,6 +267,10 @@ def main():
         "meta": meta, "pacing": pacing, "audio": audio,
         "cuts": cuts, "shots": shots,
     }
+    if info:
+        analysis["source_info"] = info
+    if transcript:
+        analysis["transcript"] = transcript
     (out / "analysis.json").write_text(json.dumps(analysis, ensure_ascii=False, indent=2), encoding="utf-8")
 
     metrics = "\n".join([
@@ -201,6 +288,8 @@ def main():
                       .replace("{{preset}}", "—"), encoding="utf-8")
 
     print(metrics)
+    if transcript:
+        print(f"- التفريغ: {transcript['word_count']} كلمة ({transcript['language']}) → words.json")
     print(f"✓ النتائج في {out.relative_to(ROOT)}/  — افتح contact_shots.jpg و contact_timeline.jpg")
 
 

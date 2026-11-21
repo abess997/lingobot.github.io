@@ -24,6 +24,8 @@
 
 ### 1) المستخدم يعطيك مقطع مرجعي
 1. شغّل: `python3 tools/analyze.py inbox/<file> --slug <اسم-قصير>`
+   أو من رابط مباشرة: `python3 tools/analyze.py --url "<رابط>" --slug <اسم-قصير>` (ينزّل إلى inbox/ بـ yt-dlp)
+   أضف `--transcribe --language ar` لتفريغ الكلام → `references/<slug>/words.json` جاهز لـ `captions.py --words`.
    يُخرج: المدة، الأبعاد، fps، نقاط القطع (cuts)، متوسط طول اللقطة، الإيقاع، مستوى الصوت (LUFS)،
    و**لوحتين صور**: `contact_shots.jpg` (لقطة لكل مشهد) و `contact_timeline.jpg` (12 لقطة موزعة).
 2. **افتح اللوحتين بأداة Read وانظر إليها فعلاً.** استخرج بصرياً: مكان الكابشن، الخط (سميك/رفيع)،
@@ -49,7 +51,10 @@
 - كل ٥ ملاحظات تقريباً: راجع profile ولخّصه، احذف المكرر.
 
 ## التفريغ النصي (توقيت الكلمات)
-- لا يوجد whisper مثبت، و huggingface محجوب في هذه البيئة (لا يمكن تنزيل النماذج).
+- **على جهاز المستخدم:** `analyze.py --transcribe` (Whisper محلي، مع توقيت كل كلمة). التركيب: `pip install -r requirements.txt`
+  (~5 جيجا بسبب torch + النموذج أول مرة). `--whisper-model turbo` أو `large` أدق للعربي من `small` الافتراضي.
+- **في السحابة:** الشبكة تحجب YouTube و Instagram وسيرفر نماذج Whisper (`openaipublic.azureedge.net`) و huggingface،
+  فلا `--url` ولا `--transcribe` يشتغلان هناك إلا إذا سمح المستخدم بهذه المواقع في إعدادات الشبكة.
 - البدائل: (أ) المستخدم يعطي ملف SRT/نص — `captions.py --srt`. (ب) أداة ElevenLabs `creative_transcribe_audio`
   إذا كانت متصلة — **تستهلك رصيد المستخدم، اسأله أولاً**. (ج) `--text` مع `--start/--end` لتوزيع الكلمات بالتساوي (تقريبي).
 - صيغة `words.json`: `[{"text": "كلمة", "start": 0.00, "end": 0.42}, ...]`

@@ -27,7 +27,8 @@ references/               ← تحليل كل مقطع مرجعي
 styles/caption-presets.json  ← أنماط الكابشن الجاهزة
 styles/editing-recipes.md    ← وصفات المونتاج
 styles/animation-library.md  ← حركات النص
-tools/analyze.py          ← أداة التحليل
+tools/analyze.py          ← أداة التحليل (من ملف أو --url، و --transcribe للتفريغ النصي)
+requirements.txt          ← المكتبات بإصدارات مثبتة
 tools/captions.py         ← مولّد الكابشن المتحرك
 inbox/  outputs/          ← الفيديوهات (ما ترتفع على GitHub)
 ```
