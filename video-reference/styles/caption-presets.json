@@ -1,0 +1,39 @@
+{
+  "_doc": "أنماط الكابشن. الألوان بصيغة #RRGGBB. mode: highlight = المجموعة كاملة والكلمة الحالية مميزة | word = كلمة واحدة في كل مرة | line = المجموعة كاملة بظهور ناعم. alignment: 2 أسفل-وسط، 5 وسط، 8 أعلى-وسط. margin_v بالبكسل على دقة 1080x1920.",
+  "bold-pop": {
+    "description": "أبيض سميك بتحديد أسود، الكلمة الحالية صفراء وتكبر — أسلوب ريلز شائع",
+    "mode": "highlight",
+    "font": "DejaVu Sans", "size": 92, "bold": true, "uppercase": true,
+    "primary": "#FFFFFF", "highlight": "#FFE11A",
+    "outline_color": "#000000", "outline": 6, "shadow": 2,
+    "box": false, "back_color": "#000000",
+    "alignment": 2, "margin_v": 620, "max_words": 3, "pop": true
+  },
+  "single-word": {
+    "description": "كلمة واحدة كبيرة في المنتصف تظهر بحركة pop",
+    "mode": "word",
+    "font": "DejaVu Sans", "size": 130, "bold": true, "uppercase": true,
+    "primary": "#FFFFFF", "highlight": "#FFFFFF",
+    "outline_color": "#000000", "outline": 7, "shadow": 3,
+    "box": false, "back_color": "#000000",
+    "alignment": 5, "margin_v": 0, "max_words": 1, "pop": true
+  },
+  "clean-box": {
+    "description": "نص أبيض على صندوق أسود شبه شفاف، هادئ ومقروء",
+    "mode": "line",
+    "font": "DejaVu Sans", "size": 64, "bold": true, "uppercase": false,
+    "primary": "#FFFFFF", "highlight": "#FFFFFF",
+    "outline_color": "#000000", "outline": 14, "shadow": 0,
+    "box": true, "back_color": "#000000", "back_alpha": 90,
+    "alignment": 2, "margin_v": 560, "max_words": 5, "pop": false
+  },
+  "green-karaoke": {
+    "description": "سطر كامل، الكلمة الحالية خضراء بدون تكبير",
+    "mode": "highlight",
+    "font": "DejaVu Sans", "size": 80, "bold": true, "uppercase": false,
+    "primary": "#FFFFFF", "highlight": "#2BEA5A",
+    "outline_color": "#000000", "outline": 5, "shadow": 0,
+    "box": false, "back_color": "#000000",
+    "alignment": 2, "margin_v": 600, "max_words": 4, "pop": false
+  }
+}
