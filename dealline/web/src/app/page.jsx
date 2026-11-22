@@ -1,6 +1,8 @@
 // Recovered from the Deal Line production build (app/page.tsx). Types were stripped by the build and are not recoverable.
 import { useEffect, useMemo, useState } from "react";
 import { LiveWorkspace } from "../live/LiveWorkspace.jsx";
+import { BuyerUnitBanner, BuyerUnitDetail } from "../live/BuyerUnit.jsx";
+import { loadHandoff } from "../live/handoff.js";
 import {
   ArrowLeft,
   BadgeCheck,
@@ -419,8 +421,11 @@ function HomePage() {
     setLiveOpenState(open);
     window.history.replaceState(null, "", open ? "#/office" : window.location.pathname + window.location.search);
   };
+  // Deal Line merge: a unit picked on an office site arrives here (#/buy) -> buyer login -> that unit.
+  const [unitHandoff] = useState(() => (window.location.hash === "#/buy" ? loadHandoff() : null));
+  const [unitOpen, setUnitOpen] = useState(false);
   const [signedIn, setSignedIn] = useState(false);
-  const [welcomeOpen, setWelcomeOpen] = useState(true);
+  const [welcomeOpen, setWelcomeOpen] = useState(() => !unitHandoff);
   const [walletOpen, setWalletOpen] = useState(false);
   const [savedUnits, setSavedUnits] = useState([]);
   const toggleSavedUnit = (unit) =>
@@ -602,6 +607,7 @@ function HomePage() {
   if (!signedIn)
     return (
       <PortalLogin
+        handoff={unitHandoff}
         welcome={() => setWelcomeOpen(true)}
         pending={nafathPending}
         begin={() => setNafathPending(true)}
@@ -609,7 +615,8 @@ function HomePage() {
           setSignedIn(true);
           setRole("buyer");
           setActiveNav("home");
-          if (propertyInquiry) setChatOpen(true);
+          if (unitHandoff) setUnitOpen(true);
+          else if (propertyInquiry) setChatOpen(true);
         }}
         portal={(next) => {
           if (next === "live") {
@@ -871,6 +878,7 @@ function HomePage() {
             </span>
           </div>
           <div key={role} className="portal-stage">
+            {role === "buyer" && unitHandoff && <BuyerUnitBanner handoff={unitHandoff} open={() => setUnitOpen(true)} />}
             {role === "buyer" ? (
               <BuyerDashboard
                 uploaded={uploaded}
@@ -958,6 +966,11 @@ function HomePage() {
         {role === "buyer" && (
           <AiAssistant open={aiOpen} close={() => setAiOpen(false)} showToast={showToast} />
         )}
+        {role === "buyer" && unitHandoff && unitOpen && (
+          <ExperienceDialog title={`${unitHandoff.project.name} — الوحدة ${unitHandoff.unit.code}`} close={() => setUnitOpen(false)} wide>
+            <BuyerUnitDetail handoff={unitHandoff} buyerName={roleMeta.buyer.name} done={() => setUnitOpen(false)} />
+          </ExperienceDialog>
+        )}
         {walletOpen && (role === "sales" || role === "bankEmployee") && (
           <ExperienceDialog title="محفظتي" close={() => setWalletOpen(false)}>
             <WalletPanel bank={role === "bankEmployee"} />
@@ -1039,7 +1052,7 @@ function HomePage() {
     </SpatialSurface>
   );
 }
-function PortalLogin({ pending, begin, complete, portal, welcome }) {
+function PortalLogin({ pending, begin, complete, portal, welcome, handoff }) {
   return (
     <SpatialSurface>
       <main className="login-shell" dir="rtl">
@@ -1084,6 +1097,12 @@ function PortalLogin({ pending, begin, complete, portal, welcome }) {
               <ArrowLeft size={17} />
               {" تعرّف على ديل لاين واستكشف العقارات"}
             </button>
+            {handoff && (
+              <p className="portal-security-note" role="status">
+                <Building2 size={15} />
+                {` بعد الدخول نكمل معك على ${handoff.project.name} — الوحدة ${handoff.unit.code}`}
+              </p>
+            )}
             <div className="client-login-card">
               <span className="nafath-symbol">
                 <FingerprintPattern size={29} />

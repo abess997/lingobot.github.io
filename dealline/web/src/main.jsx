@@ -24,7 +24,8 @@ function Router() {
   }, []);
   const site = hash.match(/^#\/site\/([a-z0-9-]+)/);
   if (site) return <PublicSite key={site[1]} slug={site[1]} />;
-  return <HomePage />;
+  // remount on route change so #/office and #/buy take effect from anywhere
+  return <HomePage key={hash === "#/office" || hash === "#/buy" ? hash : "home"} />;
 }
 
 createRoot(document.getElementById("root")).render(

@@ -1,7 +1,8 @@
 // The tenant website the builder produces ({slug}.SITES_ROOT_DOMAIN in production; #/site/{slug} here).
 // Reads only the public endpoints: no buyer data, no IBAN, ads hidden once their license expires.
 import { useEffect, useState } from "react";
-import { ArrowRight, MapPin, Phone, ShieldCheck } from "lucide-react";
+import { ArrowRight, Calculator, MapPin, Phone, ShieldCheck, ShoppingBag } from "lucide-react";
+import { saveHandoff } from "./handoff.js";
 import { ExperienceDialog } from "../app/experience.jsx";
 import { api, initBackend, PLAN_TRIGGERS, PROPERTY_TYPES, sar, UNIT_TYPES, date } from "./api.js";
 import { Field, Form, Loaded, useAction, useLoad } from "./ui.jsx";
@@ -105,7 +106,7 @@ function SiteView({ host }) {
           )}
           {open?.project && (
             <ExperienceDialog title="تفاصيل المشروع" close={() => setOpen(null)} wide>
-              <ProjectDetail host={host} id={open.project} notify={notify} done={() => setOpen(null)} />
+              <ProjectDetail host={host} office={site.title} id={open.project} notify={notify} done={() => setOpen(null)} />
             </ExperienceDialog>
           )}
           {toast && <div className="toast" role="status">{toast}</div>}
@@ -150,7 +151,7 @@ function ListingDetail({ host, listing: l, notify, done }) {
   );
 }
 
-function ProjectDetail({ host, id, notify, done }) {
+function ProjectDetail({ host, office, id, notify, done }) {
   const p = useLoad(() => api(`/public/sites/${host}/projects/${id}`), [id]);
   const [unit, setUnit] = useState(null);
   const [run, busy] = useAction((m) => notify(m));
@@ -183,10 +184,42 @@ function ProjectDetail({ host, id, notify, done }) {
             </div>
           ))}
           <p className="live-note">المدفوعات تُحوّل إلى حساب الضمان الخاص بالمشروع وفق نظام البيع على الخارطة، ولا تُدفع عبر هذا الموقع.</p>
-          <h3>سجّل اهتمامك{unit ? ` بالوحدة ${d.units.find((u) => u.id === unit)?.code}` : ""}</h3>
-          <LeadForm busy={busy} cta="سجّل اهتمامي" submit={(v) => run(async () => { await api(`/public/sites/${host}/projects/${id}/interest`, { method: "POST", body: { ...v, message: v.message || null, unit_id: unit, ...utm() } }); done(); }, "سجلنا اهتمامك، وسيتواصل معك فريق المبيعات.")} />
+          {unit ? (
+            <UnitActions host={host} office={office} project={d} unit={d.units.find((u) => u.id === unit)} />
+          ) : (
+            <>
+              <h3>سجّل اهتمامك</h3>
+              <p className="live-note">اختر وحدة متاحة من الأعلى لتظهر لك خيارات الشراء والحسبة.</p>
+              <LeadForm busy={busy} cta="سجّل اهتمامي" submit={(v) => run(async () => { await api(`/public/sites/${host}/projects/${id}/interest`, { method: "POST", body: { ...v, message: v.message || null, unit_id: null, ...utm() } }); done(); }, "سجلنا اهتمامك، وسيتواصل معك فريق المبيعات.")} />
+            </>
+          )}
         </div>
       )}
     </Loaded>
+  );
+}
+
+/** A unit is picked: buy now, or calculate it with Deal Line. Both continue in the Deal Line buyer
+ *  portal (login first), on this exact unit and price. */
+function UnitActions({ host, office, project, unit }) {
+  const go = (intent) => {
+    saveHandoff({
+      intent, host, office,
+      project: { id: project.id, name: project.name, city: project.city, district: project.district, wafi_license_number: project.wafi_license_number },
+      unit: { id: unit.id, code: unit.code, unit_type: unit.unit_type, area_sqm: unit.area_sqm, bedrooms: unit.bedrooms, price_halalas: unit.price_halalas },
+      plans: project.payment_plans,
+      at: new Date().toISOString(),
+    });
+    window.location.hash = "#/buy";
+  };
+  return (
+    <div className="pub-unit-actions">
+      <h3>الوحدة <bdi>{unit.code}</bdi> · <bdi>{sar(unit.price_halalas)}</bdi></h3>
+      <div className="pub-unit-buttons">
+        <button className="primary-action" onClick={() => go("buy")}><ShoppingBag size={18} /> شراء الآن</button>
+        <button className="secondary-action" onClick={() => go("calc")}><Calculator size={18} /> احسبها مع ديل لاين</button>
+      </div>
+      <p className="live-note">تنتقل إلى بوابة العميل في ديل لاين لتسجيل الدخول، ثم تظهر لك نفس الوحدة وحسبتك على سعرها بالضبط. لا يتم أي دفع من هنا.</p>
+    </div>
   );
 }
