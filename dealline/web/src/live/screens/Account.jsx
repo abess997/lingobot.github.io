@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { api, backendInfo, dateTime, statusLabel } from "../api.js";
-import { Badge, Field, Form, Loaded, Panel, useAction, useLoad } from "../ui.jsx";
+import { Badge, ConfirmButton, Field, Loaded, Panel, useAction, useLoad } from "../ui.jsx";
 
 export function AccountScreen({ me, notify, onSignedOut }) {
   const members = useLoad(() => api("/api/members"));
@@ -42,13 +42,24 @@ export function AccountScreen({ me, notify, onSignedOut }) {
             {!info.outbox.length && <li>لا شيء بعد في هذه الجلسة.</li>}
           </ul>
           <p className="live-note">قاعدة البيانات محفوظة في متصفحك ({info.persisted ? "IndexedDB" : "في الذاكرة فقط"}).</p>
-          <button className="live-btn danger" onClick={async () => { if (!window.confirm("حذف كل البيانات التجريبية والبدء من جديد؟")) return; await info.reset(); window.location.reload(); }}>إعادة ضبط البيانات التجريبية</button>
+          <ConfirmButton confirmLabel="تأكيد: حذف كل البيانات التجريبية" onConfirm={async () => { await info.reset(); window.location.reload(); }}>إعادة ضبط البيانات التجريبية</ConfirmButton>
         </Panel>
       )}
       <Panel title="حذف الحساب" subtitle="يحذف حسابك فعليًا، ومعه المنشأة إن كنت المالك الوحيد (ما لم توجد حجوزات مدفوعة).">
-        <Form busy={busy} submit="حذف حسابي نهائيًا" onSubmit={(v) => window.confirm("لا يمكن التراجع. متأكد؟") && run(async () => { await api("/me", { method: "DELETE", body: { password: v.password } }); onSignedOut(); }, "حُذف الحساب")}>
-          <Field label="كلمة المرور للتأكيد"><input name="password" type="password" required autoComplete="current-password" /></Field>
-        </Form>
+        <div className="live-inline live-body">
+          <Field label="كلمة المرور للتأكيد"><input id="delete-account-password" type="password" autoComplete="current-password" /></Field>
+          <ConfirmButton
+            disabled={busy}
+            confirmLabel="لا يمكن التراجع — اضغط للتأكيد"
+            onConfirm={() => {
+              const password = document.getElementById("delete-account-password").value;
+              if (!password) { notify("أدخل كلمة المرور أولًا", "error"); return; }
+              run(async () => { await api("/me", { method: "DELETE", body: { password } }); onSignedOut(); }, "حُذف الحساب");
+            }}
+          >
+            حذف حسابي نهائيًا
+          </ConfirmButton>
+        </div>
       </Panel>
     </>
   );

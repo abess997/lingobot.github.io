@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { ExperienceDialog } from "../../app/experience.jsx";
 import { api, dateTime, statusLabel, TRIGGERS } from "../api.js";
-import { Badge, Field, Form, Loaded, Panel, opt, useAction, useLoad } from "../ui.jsx";
+import { Badge, ConfirmButton, Field, Form, Loaded, Panel, opt, useAction, useLoad } from "../ui.jsx";
 
 export function AutomationScreen({ notify, isAdmin }) {
   const [tab, setTab] = useState("tasks");
@@ -107,7 +107,7 @@ function Rules({ notify }) {
                     <td><Badge status={r.active ? "active" : "draft"}>{r.active ? "تعمل" : "موقوفة"}</Badge></td>
                     <td className="live-actions">
                       <button className="live-btn" disabled={busy} onClick={() => run(async () => { await api(`/api/automation/rules/${r.id}`, { method: "PATCH", body: { active: !r.active } }); await rules.reload(); }, r.active ? "أُوقفت القاعدة" : "تعمل القاعدة")}>{r.active ? "إيقاف" : "تشغيل"}</button>
-                      <button className="live-btn danger" disabled={busy} onClick={() => window.confirm("حذف القاعدة؟") && run(async () => { await api(`/api/automation/rules/${r.id}`, { method: "DELETE" }); await rules.reload(); }, "حُذفت القاعدة")}>حذف</button>
+                      <ConfirmButton disabled={busy} confirmLabel="تأكيد الحذف" onConfirm={() => run(async () => { await api(`/api/automation/rules/${r.id}`, { method: "DELETE" }); await rules.reload(); }, "حُذفت القاعدة")}>حذف</ConfirmButton>
                     </td>
                   </tr>
                 ))}

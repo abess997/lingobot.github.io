@@ -138,3 +138,24 @@ export function Kpi({ icon: Icon, tone = "mint", label, value, note, onClick }) 
 /** "" -> null, numbers parsed. */
 export const opt = (v) => (v === "" || v == null ? null : v);
 export const num = (v) => (v === "" || v == null ? null : Number(v));
+
+/** Destructive button with an in-page second click (confirm() is suppressed in embedded viewers). */
+export function ConfirmButton({ onConfirm, children, confirmLabel = "اضغط مرة أخرى للتأكيد", className = "live-btn danger", disabled }) {
+  const [armed, setArmed] = useState(false);
+  useEffect(() => {
+    if (!armed) return undefined;
+    const t = setTimeout(() => setArmed(false), 4000);
+    return () => clearTimeout(t);
+  }, [armed]);
+  return (
+    <button
+      type="button"
+      className={className}
+      disabled={disabled}
+      aria-live="polite"
+      onClick={() => { if (armed) { setArmed(false); onConfirm(); } else setArmed(true); }}
+    >
+      {armed ? confirmLabel : children}
+    </button>
+  );
+}

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Plus } from "lucide-react";
 import { ExperienceDialog } from "../../app/experience.jsx";
 import { api, date, PROPERTY_TYPES, sar, statusLabel, toHalalas } from "../api.js";
-import { Badge, Field, Form, Loaded, Panel, num, opt, useAction, useLoad } from "../ui.jsx";
+import { Badge, ConfirmButton, Field, Form, Loaded, Panel, num, opt, useAction, useLoad } from "../ui.jsx";
 
 const FILTERS = ["", "draft", "published", "reserved", "sold", "archived"];
 
@@ -59,7 +59,7 @@ export function ListingsScreen({ me, notify, isAdmin }) {
                           {canEdit && ["published", "reserved"].includes(l.status) && <button className="live-btn" disabled={busy} onClick={() => setListingStatus(l, "sold")}>مباع</button>}
                           {canEdit && l.status !== "archived" && <button className="live-btn" disabled={busy} onClick={() => setListingStatus(l, "archived")}>أرشفة</button>}
                           {isAdmin && (
-                            <button className="live-btn danger" disabled={busy} onClick={() => window.confirm(`حذف «${l.title}»؟`) && run(async () => { const r = await api(`/api/listings/${l.id}`, { method: "DELETE" }); await list.reload(); notify(r.status === "deleted" ? "تم الحذف" : "عليه حجوزات؛ أُرشف بدل الحذف"); })}>حذف</button>
+                            <ConfirmButton disabled={busy} confirmLabel="تأكيد الحذف" onConfirm={() => run(async () => { const r = await api(`/api/listings/${l.id}`, { method: "DELETE" }); await list.reload(); notify(r.status === "deleted" ? "تم الحذف" : "عليه حجوزات؛ أُرشف بدل الحذف"); })}>حذف</ConfirmButton>
                           )}
                         </td>
                       </tr>
