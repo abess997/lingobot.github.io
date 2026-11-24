@@ -1,0 +1,47 @@
+{
+  "slug": "claude-ultra-workflow",
+  "file": "claude-ultra.mp4",
+  "source": "https://www.instagram.com/reel/DgGTJuuIC0x/",
+  "analyzed_at": "2026-11-24",
+  "scene_threshold": 0.3,
+  "meta": {
+    "duration": 27.328,
+    "width": 720,
+    "height": 1280,
+    "aspect": "9:16",
+    "orientation": "vertical",
+    "fps": 30.0,
+    "video_codec": "h264",
+    "has_audio": true,
+    "bitrate_kbps": 929
+  },
+  "pacing": {
+    "shot_count": 2,
+    "cuts_per_minute": 2.2,
+    "avg_shot_sec": 13.66,
+    "median_shot_sec": 23.8,
+    "shortest_shot_sec": 3.53,
+    "longest_shot_sec": 23.8,
+    "first_cut_sec": 23.8,
+    "label": "هادئ / لقطة طويلة (أكثر من 4 ثواني)"
+  },
+  "audio": {
+    "integrated_lufs": -14.1,
+    "lra_lu": 2.4
+  },
+  "cuts": [
+    23.8
+  ],
+  "shots": [
+    {
+      "start": 0.0,
+      "end": 23.8,
+      "length": 23.8
+    },
+    {
+      "start": 23.8,
+      "end": 27.328,
+      "length": 3.528
+    }
+  ]
+}
