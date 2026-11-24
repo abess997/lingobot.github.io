@@ -39,7 +39,7 @@ ap.add_argument("--assets", required=True)
 ap.add_argument("--out", default="out.mp4")
 ap.add_argument("--preview", default="")
 ap.add_argument("--tail", type=float, default=0.9)
-ap.add_argument("--poses", required=True, help="مجلد وضعيات الشخصية PNG (extract_poses.py)")
+ap.add_argument("--poses", default="", help="مجلد وضعيات الشخصية PNG (extract_poses.py)")
 args = ap.parse_args()
 A = Path(args.assets)
 
@@ -526,7 +526,7 @@ def draw_wave(fr, t, d):
 # ── الشخصية الكرتونية ─────────────────────────────────────────────
 CHAR_H = 640
 POSES = {}
-for _n in ["neutral", "talk", "point", "wow", "shrug", "thumbs"]:
+for _n in (["neutral", "talk", "point", "wow", "shrug", "thumbs"] if args.poses else []):
     _im = Image.open(Path(args.poses) / f"{_n}.png").convert("RGBA")
     _sc = CHAR_H / _im.height
     _im = _im.resize((int(_im.width * _sc), CHAR_H), Image.LANCZOS).filter(ImageFilter.UnsharpMask(1.2, 60, 2))
@@ -563,7 +563,8 @@ def draw_char(fr, t):
 
 
 # ── الكابشن ──────────────────────────────────────────────────────
-CAP_Y = 1200
+Y_OFF = 0 if args.poses else 110   # إزاحة عمودية للتكوين لما ما فيه شخصية
+CAP_Y = 1200 + Y_OFF
 CAP_SIZE = 80
 
 
@@ -662,7 +663,7 @@ def headline(fr, t, t0, text, box_text=None, t_box=None, icon=False, out=None):
         a *= 1 - p_of(t, out - 0.12, 0.12)
     if a <= 0:
         return
-    y = 272 if box_text else 265
+    y = (272 if box_text else 265) + Y_OFF
     ti = text_img(text, "black", 84, WHITE)
     if icon:
         ic = spark_icon(84, SPARK, WHITE)
@@ -731,7 +732,7 @@ def place_badge(fr, s, x, y, t, t0, t_out=None, **kw):
 
 
 # ── المشاهد ──────────────────────────────────────────────────────
-CARD_Y = 730
+CARD_Y = 730 + Y_OFF
 
 
 def scene_A(fr, t):
@@ -890,7 +891,7 @@ def scene_F(fr, t):
     p = p_of(t, S_F, 0.3)
     # «اكتب في التعليقات» + ULTRA ضخمة
     lab = badge("اكتب في التعليقات", bg=INK, fg=WHITE, size=46, font="xb")
-    paste(fr, lab, W / 2, 610 - (1 - e_out(p)) * 40, 1, cl(p * 2))
+    paste(fr, lab, W / 2, 610 + Y_OFF - (1 - e_out(p)) * 40, 1, cl(p * 2))
     q = p_of(t, t_ultra - 0.05, 0.3)
     if q > 0:
         tx = text_img("ULTRA", "black", 190, INK)
@@ -898,12 +899,12 @@ def scene_F(fr, t):
         b = Image.new("RGBA", (bw, bh), YEL + (255,))
         b.alpha_composite(tx, (bw // 2 - tx.width // 2, bh // 2 - tx.height // 2))
         sc = 1.6 - 0.6 * e_back(q, 1.6)
-        paste(fr, b, W / 2, 820, sc, cl(q * 3))
+        paste(fr, b, W / 2, (820 + Y_OFF), sc, cl(q * 3))
         if q >= 1:
-            handles(ImageDraw.Draw(fr), (W / 2 - bw / 2, 820 - bh / 2, W / 2 + bw / 2, 820 + bh / 2))
+            handles(ImageDraw.Draw(fr), (W / 2 - bw / 2, (820 + Y_OFF) - bh / 2, W / 2 + bw / 2, (820 + Y_OFF) + bh / 2))
             # مؤشر يضغط
             c = p_of(t, t_ultra + 0.15, 0.35)
-            paste(fr, CURSOR, W / 2 + bw / 2 - 40 + (1 - e_out(c)) * 120, 820 + bh / 2 - 10 + (1 - e_out(c)) * 120,
+            paste(fr, CURSOR, W / 2 + bw / 2 - 40 + (1 - e_out(c)) * 120, (820 + Y_OFF) + bh / 2 - 10 + (1 - e_out(c)) * 120,
                   1 - 0.15 * math.sin(math.pi * p_of(t, t_ultra + 0.45, 0.18)))
     # فقاعة تعليق
     if t >= S_F + 0.1:
@@ -914,7 +915,7 @@ def scene_F(fr, t):
         bd.polygon([(40, 96), (30, 126), (74, 98)], fill=WHITE)
         for k in range(3):
             bd.ellipse((38 + k * 30, 44, 52 + k * 30, 58), fill=INK)
-        paste(fr, bub, W / 2, 440, 0.4 + 0.6 * e_back(r, 2), cl(r * 3), rot=-6)
+        paste(fr, bub, W / 2, 440 + Y_OFF, 0.4 + 0.6 * e_back(r, 2), cl(r * 3), rot=-6)
 
 
 BG = make_bg()
@@ -929,7 +930,8 @@ def frame(t):
     fr = bg.crop(((bg.width - W) // 2, (bg.height - H) // 2, (bg.width - W) // 2 + W, (bg.height - H) // 2 + H)).copy()
     scene_A(fr, t); scene_B(fr, t); scene_C(fr, t); scene_D(fr, t); scene_E(fr, t); scene_F(fr, t)
     d = ImageDraw.Draw(fr)
-    draw_char(fr, t)
+    if POSES:
+        draw_char(fr, t)
     draw_caption(fr, t)
     return fr.convert("RGB")
 

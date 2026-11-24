@@ -1,7 +1,11 @@
 # claude-ultra-saudi — نسخة سعودية من مرجع claude-ultra-workflow
 
-**الناتج (v2، الحالي):** `outputs/claude-ultra-saudi-v2.mp4`، والنسخة الأولى `outputs/claude-ultra-saudi.mp4` (غير مرفوع لـ git) · 1080×1920 · 30fps · H.264 + AAC 48kHz · 32.4ث · -14.6 LUFS، والذروة -1.4 dBFS
-**الغلاف المقترح:** `outputs/claude-ultra-saudi-v2-cover.jpg` (لقطة الختم $0 + الشخصية مندهشة)
+**الناتج (v3، الحالي):** `outputs/claude-ultra-saudi-v3.mp4`. النسخ السابقة: v2 (بشخصية كرتونية) وv1 (بموجة صوتية) (غير مرفوع لـ git) · 1080×1920 · 30fps · H.264 + AAC 48kHz · 32.4ث · -14.6 LUFS، والذروة -1.4 dBFS
+**الغلاف المقترح:** `outputs/claude-ultra-saudi-v3-cover.jpg` (لقطة الختم $0)
+
+## تعديلات v3 (ملاحظة المستخدم: «نفس الستايل وشيل الشخصية»)
+- نفس ستايل v2 بالضبط (Alexandria، وClaude Ultra بالإنجليزي، والكابشن الجديد)، لكن **بدون شخصية وبدون موجة صوتية**.
+- التكوين نازل 110px (`Y_OFF`) عشان يتوسط الشاشة. الشخصية صارت اختيارية: `--poses` يرجّعها.
 
 ## تعديلات v2 (بناءً على ملاحظة المستخدم 2026-11-24)
 - **شخصية كرتونية** (شاب سعودي بثوب وشماغ) بدل شريط الموجة الصوتية. ولّدتها بـ ElevenLabs `gpt-image-2` كلوحة 6 وضعيات في صورة واحدة عشان تكون متطابقة (توليد واحد = 4 خيارات، 738 رصيد)، وقصّيتها وأزلت الخلفية الخضراء بـ `extract_poses.py`. الوضعيات تتغير مع الكلام (`POSE_TL` في render.py)، والفم يتحرك في الوضعية العادية حسب قوة الصوت.
@@ -24,7 +28,7 @@ python3 process_vo.py takeA.mp3 voA.wav
 python3 /tmp/tx.py small voA.wav:ar      # whisper ← voA.wav.words.json
 python3 align.py script.txt voA.wav.words.json words.json
 python3 extract_poses.py character_sheet.png poses/
-python3 render.py --vo voA.wav --words words.json --assets <مجلد الخطوط: Alexandria + Amiri> --poses poses/ --out ../../outputs/claude-ultra-saudi-v2.mp4
+python3 render.py --vo voA.wav --words words.json --assets <مجلد الخطوط: Alexandria + Amiri> --out ../../outputs/claude-ultra-saudi-v3.mp4   # أضف --poses poses/ للنسخة بالشخصية
 ```
 الخطوط (OFL من google/fonts): Alexandria[wght] (المستخدم الآن)، وAmiri Bold/BoldItalic لبطاقة Open Source.
 للمعاينة السريعة: `--preview 1.0,5.0,...` يطلّع PNG بدل الفيديو.
