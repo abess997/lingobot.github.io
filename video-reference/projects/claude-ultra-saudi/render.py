@@ -39,12 +39,20 @@ ap.add_argument("--assets", required=True)
 ap.add_argument("--out", default="out.mp4")
 ap.add_argument("--preview", default="")
 ap.add_argument("--tail", type=float, default=0.9)
+ap.add_argument("--poses", required=True, help="مجلد وضعيات الشخصية PNG (extract_poses.py)")
 args = ap.parse_args()
 A = Path(args.assets)
 
 
+ALX_W = {"black": 900, "xb": 800, "bold": 600}
+
+
 @lru_cache(None)
 def F(name, size):
+    if name in ALX_W:
+        f = ImageFont.truetype(str(A / "Alexandria[wght].ttf"), size, layout_engine=RAQM)
+        f.set_variation_by_axes([ALX_W[name]])
+        return f
     paths = {"black": A / "Tajawal-Black.ttf", "xb": A / "Tajawal-ExtraBold.ttf", "bold": A / "Tajawal-Bold.ttf",
              "serif": A / "Amiri-Bold.ttf", "serifi": A / "Amiri-BoldItalic.ttf",
              "mono": "/usr/share/fonts/truetype/jetbrains-mono/JetBrainsMono-Bold.ttf",
@@ -302,7 +310,7 @@ def elig_card():
         im.alpha_composite(b, (x - h.width - 10 - b.width, y))
         y += 80
     d.line((40, y + 6, CW - 40, y + 6), fill=LINE, width=2)
-    t = text_img(ELIG_LAST, "xb", 28, WHITE)
+    t = text_img(ELIG_LAST, "xb", 25, WHITE)
     im.alpha_composite(t, (CW - 50 - t.width, y + 30))
     return im
 
@@ -403,7 +411,13 @@ HILITE = {wi("ببلاش!"), wi("أعلى"), wi("استخدام"), wi("أكثر"
 BRAND = {wi("كلود", 1), wi("ألترا..."), wi("كلود", 2), wi("كلود", 3), wi("فور"), wi("أوبن"), wi("سورس،"), wi("ألترا", 2)}
 
 
-def disp(tok):
+LATIN = {wi("كلود", 1): "Claude", wi("ألترا..."): "Ultra", wi("كلود", 2): "Claude", wi("كلود", 3): "Claude",
+         wi("فور"): "for", wi("أوبن"): "Open", wi("سورس،"): "Source", wi("ألترا", 2): "ULTRA"}
+
+
+def disp(tok, k=None):
+    if k in LATIN:
+        return LATIN[k]
     return tok.replace("...", "").replace("!", "").replace(".", "").replace(":", "")
 
 
@@ -509,18 +523,72 @@ def draw_wave(fr, t, d):
         rrect(d, (x - 8, cy - h / 2, x + 8, cy + h / 2), 8, fill=(255, 255, 255, 215 if k != nb // 2 else 255))
 
 
+# ── الشخصية الكرتونية ─────────────────────────────────────────────
+CHAR_H = 640
+POSES = {}
+for _n in ["neutral", "talk", "point", "wow", "shrug", "thumbs"]:
+    _im = Image.open(Path(args.poses) / f"{_n}.png").convert("RGBA")
+    _sc = CHAR_H / _im.height
+    _im = _im.resize((int(_im.width * _sc), CHAR_H), Image.LANCZOS).filter(ImageFilter.UnsharpMask(1.2, 60, 2))
+    _a = np.asarray(_im.getchannel("A"))[: int(CHAR_H * 0.3)]   # مركز الرأس للمحاذاة
+    _xs = np.where(_a > 128)[1]
+    POSES[_n] = (_im, float(_xs.mean()))
+
+POSE_TL = [(0.0, "neutral"), (t_free - 0.05, "wow"), (T("هذي") - 0.05, "point"), (t_feat, "wow"),
+           (T("رسايل"), "neutral"), (t_limit, "shrug"), (t_less, "thumbs"), (T("والطريقة"), "point"),
+           (T("البرنامج"), "neutral"), (t_notsure, "shrug"), (t_apply, "thumbs"), (T("اكتب"), "point"),
+           (t_link, "thumbs")]
+
+
+def draw_char(fr, t):
+    pose, t0 = "neutral", 0.0
+    for tt, n in POSE_TL:
+        if t >= tt:
+            pose, t0 = n, tt
+    i = int(t * FPS)
+    v = ENV[i] if 0 <= i < len(ENV) else 0
+    if pose == "neutral" and v > 0.32 and (i // 3) % 2 == 0:
+        pose = "talk"                      # تحريك الفم مع الكلام
+    im, hx = POSES[pose]
+    p = p_of(t, t0, 0.18)                  # نطّة عند تغيير الوضعية
+    sc = 0.93 + 0.07 * e_back(p, 2.5) if t0 > 0 else 1.0
+    bob = math.sin(t * 2.4) * 5 + v * 9    # تنفّس + اهتزاز مع الصوت
+    ent = e_out(p_of(t, 0.0, 0.35))
+    w, h = int(im.width * sc), int(im.height * sc)
+    im2 = im.resize((w, h), Image.BILINEAR) if sc != 1.0 else im
+    x = W / 2 - hx * sc
+    y = H - h + 18 + bob + (1 - ent) * 300
+    # ظل خفيف خلف الشخصية
+    fr.alpha_composite(im2, (int(x), int(y)))
+
+
 # ── الكابشن ──────────────────────────────────────────────────────
-CAP_Y = 1255
-CAP_SIZE = 76
+CAP_Y = 1200
+CAP_SIZE = 80
+
+
+@lru_cache(512)
+def shadowed(key):
+    s, font, size, fill = key
+    im = text_img(s, font, size, fill, pad=16)
+    sh = Image.new("RGBA", im.size, (0, 0, 0, 0))
+    a = im.getchannel("A").filter(ImageFilter.GaussianBlur(7)).point(lambda v: int(v * 0.45))
+    sh.putalpha(a)
+    out = Image.new("RGBA", im.size, (0, 0, 0, 0))
+    out.alpha_composite(Image.new("RGBA", im.size, (40, 14, 6, 0)).copy(), (0, 0))
+    base = Image.new("RGBA", im.size, (40, 14, 6, 255)); base.putalpha(a)
+    out.alpha_composite(base, (0, 6))
+    out.alpha_composite(im)
+    return out
 
 
 def word_img(k, active):
-    s = disp(TOK[k])
-    if k in BRAND:
-        return text_img(s, "serif", CAP_SIZE + 10, CREAM)
+    s = disp(TOK[k], k)
+    if k in LATIN:
+        return shadowed((s, "black", CAP_SIZE + 4, (255, 217, 120)))
     if k in HILITE:
-        return text_img(s, "xb", CAP_SIZE, INK)
-    return text_img(s, "xb", CAP_SIZE, WHITE)
+        return text_img(s, "black", CAP_SIZE, INK, pad=16)
+    return shadowed((s, "black", CAP_SIZE, WHITE))
 
 
 def draw_caption(fr, t):
@@ -536,15 +604,26 @@ def draw_caption(fr, t):
     if t > words[g1 - 1]["end"] + 0.6 and g1 < len(words) and words[g1]["start"] > t + 0.0:
         pass
     imgs = [word_img(k, True) for k in range(g0, g1)]
-    gap = 18
+    gap = 6
     total = sum(im.width for im in imgs) + gap * (len(imgs) - 1)
     x = W / 2 + total / 2  # RTL: نبدأ من اليمين
     d = ImageDraw.Draw(fr)
     # صناديق التمييز (تدمج الكلمات المتتالية)
     pos = []
-    for k, im in zip(range(g0, g1), imgs):
-        pos.append((k, x - im.width, x, im))
-        x -= im.width + gap
+    ks = list(range(g0, g1)); j = 0
+    while j < len(ks):
+        if ks[j] in LATIN:      # مقطع إنجليزي متصل: يُرتّب من اليسار لليمين
+            run = [j]
+            while j + 1 < len(ks) and ks[j + 1] in LATIN:
+                j += 1; run.append(j)
+            rw = sum(imgs[r].width for r in run) + gap * (len(run) - 1)
+            xl = x - rw
+            for r in run:
+                pos.append((ks[r], xl, xl + imgs[r].width, imgs[r])); xl += imgs[r].width + gap
+            x -= rw + gap
+        else:
+            pos.append((ks[j], x - imgs[j].width, x, imgs[j])); x -= imgs[j].width + gap
+        j += 1
     runs = []
     for k, x0, x1, im in pos:
         if k in HILITE:
@@ -557,10 +636,11 @@ def draw_caption(fr, t):
         p = e_out(p_of(t, words[k0]["start"] - 0.04, 0.14))
         if p <= 0:
             continue
-        rx1 = run[0][2] + 10
-        rx0 = run[-1][1] - 10
+        rx1 = max(r[2] for r in run) - 2
+        rx0 = min(r[1] for r in run) + 2
         rx0p = rx1 - (rx1 - rx0) * p
-        rrect(d, (rx0p, CAP_Y - 44, rx1, CAP_Y + 46), 6, fill=YEL)
+        rrect(d, (rx0p + 4, CAP_Y - 40, rx1 + 4, CAP_Y + 56), 10, fill=(60, 20, 8, 70))
+        rrect(d, (rx0p, CAP_Y - 46, rx1, CAP_Y + 50), 10, fill=YEL)
     for k, x0, x1, im in pos:
         st = words[k]["start"]
         if t < st - 0.04:
@@ -582,7 +662,7 @@ def headline(fr, t, t0, text, box_text=None, t_box=None, icon=False, out=None):
         a *= 1 - p_of(t, out - 0.12, 0.12)
     if a <= 0:
         return
-    y = 330 if box_text else 300
+    y = 272 if box_text else 265
     ti = text_img(text, "black", 84, WHITE)
     if icon:
         ic = spark_icon(84, SPARK, WHITE)
@@ -651,14 +731,14 @@ def place_badge(fr, s, x, y, t, t0, t_out=None, **kw):
 
 
 # ── المشاهد ──────────────────────────────────────────────────────
-CARD_Y = 790
+CARD_Y = 730
 
 
 def scene_A(fr, t):
-    headline(fr, t, 0.0, "كلود ألترا،", "مجاناً لمدة ٦ شهور", 0.35, out=S_B)
+    headline(fr, t, 0.0, "Claude Ultra", "مجاناً لمدة ٦ شهور", 0.35, out=S_B)
     if t >= S_B:
         return
-    cy = CARD_Y + 20
+    cy = CARD_Y + 45
     # زوم على عمود Ultra عند «ستة شهور» — الإطار ثابت والمحتوى يكبر
     z = e_io(p_of(t, t_six - 0.05, 0.4))
     if z <= 0:
@@ -849,7 +929,7 @@ def frame(t):
     fr = bg.crop(((bg.width - W) // 2, (bg.height - H) // 2, (bg.width - W) // 2 + W, (bg.height - H) // 2 + H)).copy()
     scene_A(fr, t); scene_B(fr, t); scene_C(fr, t); scene_D(fr, t); scene_E(fr, t); scene_F(fr, t)
     d = ImageDraw.Draw(fr)
-    draw_wave(fr, t, d)
+    draw_char(fr, t)
     draw_caption(fr, t)
     return fr.convert("RGB")
 
