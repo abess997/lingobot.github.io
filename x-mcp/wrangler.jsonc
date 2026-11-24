@@ -1,0 +1,31 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "x-mcp",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-10-01",
+  // nodejs_compat: the MCP SDK uses a few Node APIs.
+  // global_fetch_strictly_public: outbound fetch() can only reach the public internet,
+  // so "save image from URL" can't be pointed at internal addresses.
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "observability": { "enabled": true },
+
+  // OAuth grants for Claude (hashed tokens, managed by @cloudflare/workers-oauth-provider).
+  "kv_namespaces": [{ "binding": "OAUTH_KV" }],
+  // Accounts, scheduled posts, history, image index.
+  "d1_databases": [{ "binding": "DB", "database_name": "x-mcp", "migrations_dir": "migrations" }],
+  // Image files.
+  "r2_buckets": [{ "binding": "IMAGES", "bucket_name": "x-mcp-images" }],
+
+  // Publishes due scheduled posts every minute.
+  "triggers": { "crons": ["* * * * *"] },
+
+  "vars": {
+    // Timezone used to show times back to you (scheduling always takes an explicit offset).
+    "TIMEZONE": "Asia/Riyadh"
+  }
+  // Secrets (set with `npx wrangler secret put NAME`, never committed):
+  //   OWNER_PASSWORD   your password for the dashboard and for approving Claude
+  //   APP_SECRET       random 32+ chars: signs your session cookie, encrypts X tokens at rest
+  //   X_CLIENT_ID      from your X app (OAuth 2.0 Client ID)
+  //   X_CLIENT_SECRET  from your X app (OAuth 2.0 Client Secret)
+}
